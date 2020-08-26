@@ -1,8 +1,15 @@
-my_token = "d71fffcded46c7385a1bf6a564e8e0d80ffc67d693e682131c3f4cba3ddb896aaf3210dd09a783e460c303cca61d3132b5dd2a5a6566b7b696972347b0f45cb9"
-
+import commonmark
+import json
 import asyncio
 from joplin_api import JoplinApi
-joplin = JoplinApi(token=my_token)
+
+
+def read_token():
+    with open('.token') as f:
+        return f.readline()
+    
+joplin = JoplinApi(read_token())
+
 
 
 
@@ -24,35 +31,51 @@ example = """Table of Content
 7194. [Hauskreis (Apr'06)](evernote:///view/536854/s1/2a825cc7-b6d6-469d-95b8-11bf78ad2977/2a825cc7-b6d6-469d-95b8-11bf78ad2977/)
 """
 
+from dataclasses import dataclass
+
+@dataclass
+class Link:
+    url:str
+    text:str
+
 def regexpr():
     # https://stackoverflow.com/questions/25109307/how-can-i-find-all-markdown-links-using-regular-expressions
     import regex
     q = regex.compile('(?|(?<txt>(?<url>(?:ht|f)tps?://\S+(?<=\P{P})))|\(([^)]+)\)\[(\g<url>)\])')
     print(regex.findall(q,example))
 
-def __collect_links(data,links):
+def __collect_links(data,links,link):
+    """
+    data -- deserialized json of parsed markup
+    links -- all links collected so far
+    link -- last parsed link; set / reset within each level to match terxt w/ urls.
+
+    """
 
     # if list recurse all elements
     if isinstance(data,list):
         for d in data:
-            collect_links(d,links)
+            link = __collect_links(d,links,link)
+        return None
 
     # if dict recurse 'children' element
     elif isinstance(data,dict):
 
-        if 'children' in data:
-            collect_links(data['children'],links)
-        
-        if data['type'] == 'link':
-            links.append(Link(link=data['destination'],text=''))
+        if ('children' in data) and data['children']:
+                __collect_links(data['children'],links,None)
+            
+        elif data['type'] == 'link':
+            link = Link(data['destination'],'')
+            links.append(link)
+            
+        elif (data['type'] == 'text') and link:
+                link.text += data['literal']
+            
+    return link
 
-        if data['type'] == 'text':
-            links[-1] = Link(links[-1].link, links[-1].text + data['literal'])
-
-    return links
+    
 
 def parse_as_json(s):
-    import commonmark, json
     parser = commonmark.Parser()
     ast = parser.parse(s)
     return commonmark.dumpJSON(ast)
@@ -60,10 +83,9 @@ def parse_as_json(s):
 
 def extract_links(s):
     data = json.loads(parse_as_json(s))
-    links = __collect_links(data, [])
+    links = []
+    __collect_links(data, links, None)
     return [link for link in links if link.text] 
 
 
-
-
-print(parse_as_json(example))
+print(extract_links(example))
