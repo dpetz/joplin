@@ -1,43 +1,22 @@
+from dataclasses import dataclass
 import commonmark
 import json
 import asyncio
 from joplin_api import JoplinApi
-
-
-def read_token():
-    with open('.token') as f:
-        return f.readline()
-    
-joplin = JoplinApi(read_token())
-
-
-
-
-async def get_toc(id = 'f25dd640fb8f43dab90f9652e30b6a20'):
-    res = await joplin.get_note(id)
-    print(res.json()['body'])
-
-#asyncio.run(get_toc())
-
-
-
-
-from dataclasses import dataclass
 
 @dataclass
 class Link:
     url:str
     text:str
 
-def regexpr():
-    # https://stackoverflow.com/questions/25109307/how-can-i-find-all-markdown-links-using-regular-expressions
-    import regex
-    q = regex.compile('(?|(?<txt>(?<url>(?:ht|f)tps?://\S+(?<=\P{P})))|\(([^)]+)\)\[(\g<url>)\])')
-    print(regex.findall(q,example))
+joplin = None
+def api():
+    global joplin
+    if not joplin:
+        with open('.token') as f:
+            joplin = JoplinApi(f.readline())
+    return joplin
 
-
-
-    
 
 def markup_to_json(s):
     parser = commonmark.Parser()
@@ -45,7 +24,8 @@ def markup_to_json(s):
     return commonmark.dumpJSON(ast)
     
 
-def extract_links(md):
+def links_from_markdown(md):
+    """ Returns all links found in Markdowen string md as a list of Link objects. """
 
     def __collect_links(data,links,link):
         """
@@ -67,7 +47,7 @@ def extract_links(md):
             if ('children' in data) and data['children']:
                     __collect_links(data['children'],links,None)
                 
-            elif data['type'] == 'link':
+            elif 'destination' in data: # data['type'] == 'link':
                 link = Link(data['destination'],'')
                 links.append(link)
                 

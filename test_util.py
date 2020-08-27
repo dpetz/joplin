@@ -1,6 +1,4 @@
-
-
-from dev import extract_links
+from util import links_from_markdown
 
 markup_example_3_links = """Table of Content
 
@@ -14,8 +12,8 @@ markup_example_3_links = """Table of Content
 """
 
 
-def test_extract_links():
-    links = extract_links(markup_example_3_links)
+def test_links_from_markdown():
+    links = links_from_markdown(markup_example_3_links)
     print(links)
     assert len(links) == 3
     assert links[-1].url == 'evernote:///view/536854/s1/2a825cc7-b6d6-469d-95b8-11bf78ad2977/2a825cc7-b6d6-469d-95b8-11bf78ad2977/'
