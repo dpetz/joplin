@@ -60,4 +60,5 @@ async def main():
     notes = await notes_tagged(TAG)
     await replace_evernote_links(notes)
 
-asyncio.run(main())
+if __name__ == "__main__":
+    asyncio.run(main())

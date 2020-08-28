@@ -1,2 +1,3 @@
 joplin-api
 commonmark
+Pillow
