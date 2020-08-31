@@ -1,16 +1,13 @@
 import asyncio
-from util import api, links_from_markdown
+from util import api, links_from_markdown, notes_tagged
 
-TAG = 'test'
-TOC = 'f25dd640fb8f43dab90f9652e30b6a20'
+TAG = 'links'
+TOC = '06b0454c00074d4da0141e4c865db701'
 
-async def get_body(note_id):
-    res = await api().get_note(note_id)
-    return res.json()['body']
 
 async def toc_dict(toc_note_id = TOC):
     """GETs note and returns links as a dict from urls to texts. """
-    body = await get_body(toc_note_id)
+    body = (await api().get_note(toc_note_id)).json()['body']
     return { link.url : link.text for link in links_from_markdown(body)}
     
 
@@ -18,7 +15,6 @@ async def replace_evernote_links(notes):
     url_to_text = await toc_dict()
     print(f"{len(url_to_text)} Table of Content entries read.")
     for note in notes:
-        print(f"{note['title']}")
         body = note['body']
         en_urls =  [l.url for l in links_from_markdown(body) \
             if l.url.startswith('evernote:')]
@@ -41,18 +37,6 @@ async def search_titles(query):
     res = await api().search(query,'note')
     return [ r['id'] for r in res.json() if r['title'] == query ]
 
-# asyncio.run(search_titles('Stack Overflow Survey 2019'))
-# asyncio.run(replace_evernote_links())
-
-async def tag_by_title(tag_title):
-    tags = await api().get_tags()
-    for t in tags.json():
-         if t['title'] == tag_title:
-             return t['id']
-
-async def notes_tagged(tag_title):
-    notes = await api().get_tags_notes(await tag_by_title(tag_title))
-    return notes.json()
 
 async def main():
     """ Replaces Evernotes links w/ Joplin links for all notes tagged TAG based on the TOC note

@@ -18,6 +18,17 @@ def api():
     return joplin
 
 
+async def tag_titled(tag_title):
+    tags = await api().get_tags()
+    for t in tags.json():
+         if t['title'] == tag_title:
+             return t['id']
+
+
+async def notes_tagged(tag_title):
+    return (await api().get_tags_notes(await tag_titled(tag_title))).json()
+
+
 def markup_to_json(s):
     parser = commonmark.Parser()
     ast = parser.parse(s)

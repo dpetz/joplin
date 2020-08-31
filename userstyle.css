@@ -1,0 +1,15 @@
+a {
+    color: #0000CD; /* set general link colour - includes TOC links*/
+    }
+    
+    a[data-resource-id] {
+    color: #006600; /* change the colour of INTERNAL links */
+    }
+    
+    .resource-icon.fa-joplin {
+    display: none; /* do not display the Joplin resource icon */
+    }
+    
+    .resource-icon {
+    background-color: #006600; /* change other resource link icons to the same as the internal link colour */
+    }
