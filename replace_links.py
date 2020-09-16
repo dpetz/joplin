@@ -1,7 +1,6 @@
 import asyncio
 from util import api, links_from_markdown, notes_tagged
 
-TAG = 'links'
 TOC = '06b0454c00074d4da0141e4c865db701'
 
 
@@ -38,10 +37,10 @@ async def search_titles(query):
     return [ r['id'] for r in res.json() if r['title'] == query ]
 
 
-async def main():
+async def main(tag_name = 'links'):
     """ Replaces Evernotes links w/ Joplin links for all notes tagged TAG based on the TOC note
     containing a Table of Content of all Evernote notes as generated and exported from Evernote. """
-    notes = await notes_tagged(TAG)
+    notes = await notes_tagged(tag_name)
     await replace_evernote_links(notes)
 
 if __name__ == "__main__":

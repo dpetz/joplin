@@ -23,6 +23,7 @@ async def tag_titled(tag_title):
     for t in tags.json():
          if t['title'] == tag_title:
              return t['id']
+    raise Exception(f"No such tag: {tag_title}")
 
 
 async def notes_tagged(tag_title):

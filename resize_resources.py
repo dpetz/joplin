@@ -5,6 +5,8 @@ from util import api
 from asyncio import run
 from io import BytesIO
 
+import logging
+
 res_dir = '/Users/dpetzoldt/.config/joplin-desktop/resources'
 png_big = 'accd72f8f52f49988ad8341ad1db7238.png' # 8M
 jpg_big = '55087622c67b77904a2a01316393cf72.jpg' # 1.9M
@@ -65,10 +67,10 @@ async def resize_and_replace(id,factor=.5):
             id_new = (await api().search(fname, item_type='resource')).json()[0]['id']
             n = await replace_in_notes(id,id_new)
 
-            print(f"Rescaled: {id_new}. Updated notes: {n}")
+            logge.info(f"Rescaled: {id_new}. Updated notes: {n}")
 
     except Exception:
-        print(f"Resizing failed: {id}")
+        logging.warning(f"Resizing failed: {id}")
 
 
 async def replace_in_notes(source, target):
