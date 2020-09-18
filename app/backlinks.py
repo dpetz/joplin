@@ -48,7 +48,7 @@ async def add_backlinks(note):
         await api().update_note(note['id'],note['title'],body, note['parent_id'])
 
 
-async def main(tag = "test"):
+async def main(tag):
     """ ... """
 
     # r = await api().get_note('9e830bc6530c416e950105834689cd63')
@@ -59,6 +59,5 @@ async def main(tag = "test"):
     await wait(add)
 
 
-
 if __name__ == "__main__":
-    run(main())
+    run(main("test"))

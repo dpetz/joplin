@@ -1,4 +1,4 @@
-from util import links_from_markdown
+from app.util import links_from_markdown
 
 markup_example_3_links = """Table of Content
 
