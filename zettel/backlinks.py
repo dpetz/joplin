@@ -1,11 +1,26 @@
-from util import api, notes_tagged
+from zettel.util import api, notes_tagged
 from asyncio import run, wait
 from dataclasses import dataclass
 from httpx import Response
 
 import logging
 
-logging.set
+import re
+
+
+backlinks_regex = re.compile('\n\^:link:\^.*')
+
+def write_backlinks_markdown(notelink_list):
+    return f"\n^:link:^{', '.join([l.markdown() for l in notelink_list])}\n"
+
+def remove_backlinks_markdown(markdown_string):
+    match = backlinks_regex.search(markdown_string)
+    if match:
+        start = match.regs[0][0]
+        end = match.regs[0][1]
+        return some_markdown[: start] + some_markdown[end : ]
+    else:
+        return markdown_string 
 
 @dataclass
 class NoteLink:
@@ -26,26 +41,17 @@ async def note_data(note):
     return note
 
 async def add_backlinks(note):
-    """Append backlinksd to note and update at server """
+    """Append backlinks to note and update at server """
 
     note = await note_data(note)
     logging.info(f"Adding backlinks: {note['id']}")
     linking_notes = (await api().search(note['id'])).json()
     links = [NoteLink(n['id'],n['title']) for n in linking_notes if n['id'] != note['id']]
-
-    body = note['body']
-
-    insertion = "\n".join([l.markdown() for l in links if l.id not in body])
-
-    if len(insertion) > 2:
-        if INTRO in body:
-            body += '\n'
-        else:
-            body += INTRO
-        
-        body += insertion
-        
-        await api().update_note(note['id'],note['title'],body, note['parent_id'])
+    # remove old backlinks (if any)
+    body = remove_backlinks_markdown(note['body'])
+    # add backlinks and upload
+    body += write_backlinks_markdown(links)
+    await api().update_note(note['id'],note['title'],body, note['parent_id'])
 
 
 async def main(tag):
