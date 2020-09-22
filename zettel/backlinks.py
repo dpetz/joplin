@@ -8,7 +8,7 @@ import logging
 import re
 
 
-backlinks_regex = re.compile('\n\^:link:\^.*')
+backlinks_regex = re.compile('\n\^:link:\^.*') # . matches until newline
 
 def write_backlinks_markdown(notelink_list):
     return f"\n\n^:link:^{', '.join([l.markdown() for l in notelink_list])}\n"
@@ -20,7 +20,12 @@ def remove_backlinks_markdown(markdown_string):
         end = match.regs[0][1]
         return markdown_string[: start] + markdown_string[end : ]
     else:
-        return markdown_string 
+        return markdown_string
+
+def trim_newlines(body):
+    while body and body[-1] == '\n':
+        body = body[:-1]
+    return body
 
 @dataclass
 class NoteLink:
@@ -54,7 +59,8 @@ async def add_backlinks(note):
         body = body[:start]
 
     # remove old backlinks (if any)
-        body = remove_backlinks_markdown(body)
+    body = remove_backlinks_markdown(body)
+    body = trim_newlines(body)
 
     # Find in-links from all other notes. Keep those not already contained
     linking_notes = (await api().search(nid)).json()
@@ -70,22 +76,19 @@ async def add_backlinks(note):
         title = note.pop('title')
         pid = note.pop('parent_id')
         tags = (await api().get_notes_tags(nid)).json()
+        
         # tags were not returned by `get_note` but required during update
         note['tags'] = ', '.join([t['title'] for t in tags])
+        
         # upload changed body and confirm all other fields
         await api().update_note(nid, title, body, pid, **note)
 
 
-async def main(tag):
+async def add_backlinks_tagged(tag):
     """ ... """
-
-    # r = await api().get_note('9e830bc6530c416e950105834689cd63')
-    # json = r.json
-
     notes = await notes_tagged(tag)
-    add = [add_backlinks(n) for n in notes]
-    await wait(add)
+    await wait([add_backlinks(n) for n in notes])
 
 
 if __name__ == "__main__":
-    run(main("test"))
+    run(add_backlinks_tagged("test")) #backlinks
