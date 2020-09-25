@@ -44,7 +44,7 @@ async def add_backlinks_note(note, update_server=True):
         body = body[:start]
 
     # append backlinks
-    body += f"\n* * *\n:link:{', '.join([l.markdown() for l in links])}\n\n\n"
+    body += f"\n* * *\n:link:{', '.join([l.markdown() for l in links])}"
 
     body = md.normalize(body)
 
