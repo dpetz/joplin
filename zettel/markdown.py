@@ -33,13 +33,7 @@ def normalize(body):
                 nextLoop = (body != body_old)
     return body
 
-def test_normalize():
-    norm = normalize("Hello\n\n\n\n****\n---\nWorld\n\n")
-    assert norm == "Hello\n\n* * *\nWorld", norm
-    print('Done')
 
-def test_thematic_break():
-    assert reThematicBreak.search(f"hi\n___") != None
 
 test_normalize()
 

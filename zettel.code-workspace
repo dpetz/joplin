@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"terminal.integrated.env.osx": {
+					
+			"PYTHONPATH" : "${workspaceFolder}:${env:PYTHONPATH}"
+		},
+		"python.analysis.logLevel": "Information"
+	}
+}

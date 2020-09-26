@@ -34,6 +34,14 @@ def deflist():
     md = "Term 1\n:   Def 1"
     print(html(md))
 
+def test_normalize():
+    norm = normalize("Hello\n\n\n\n****\n---\nWorld\n\n")
+    assert norm == "Hello\n\n* * *\nWorld", norm
+    print('Done')
+
+def test_thematic_break():
+    assert reThematicBreak.search(f"hi\n___") != None
+
 def test_markdown_to_html():
     assert renderer.render(ast) == \
         '<h1>My Title</h1>\n<hr />\n<p>Backlinks\n<a href=":/4083d03c95e042fb8da9176f9bb2a051">Backlink 1</a></p>\n'
