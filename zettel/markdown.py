@@ -12,12 +12,13 @@ class Rule:
     
 # https://github.com/readthedocs/commonmark.py/blob/master/commonmark/blocks.py
 reThematicBreak = re.compile(
-    r'^(?:(?:\*[ \t]*){3,}|(?:_[ \t]*){3,}|(?:-[ \t]*){3,})[ \t]*$')
+    r'^(?:(?:\*[ \t]*){3,}|(?:_[ \t]*){3,}|(?:-[ \t]*){3,})[ \t]*$',re.MULTILINE)
 
 rules = [
-    Rule('Ends Newline', re.compile(r'\n\Z'), ''),
-    Rule('Thematic Break to * * *', reThematicBreak, '* * *'),
-    Rule('Repated Thematic Break', re.compile(r'\* \* \*\n\* \* \*'), '* * *')
+    Rule('Trailing Line Break', re.compile(r'\n\Z'), ''),
+    Rule('Repeated Empty Lines', re.compile(r'\n{3,}'), '\n\n'),
+    Rule('Thematic Break * * *', reThematicBreak, '* * *'),
+    Rule('Repated Thematic Break', re.compile(r'\* \* \*\n+\* \* \*'), '* * *')
     ]
 
 def normalize(body):
@@ -27,13 +28,18 @@ def normalize(body):
         for r in rules:
             if r.pattern.search(body) != None:
                 logging.debug(f"Rule match: {r.name}")
+                body_old = body
                 body = r.pattern.sub(r.substitution,body)
-                nextLoop = True
+                nextLoop = (body != body_old)
     return body
 
 def test_normalize():
-    norm = normalize("Hello\n\n****\n---\nWorld\n\n")
-    assert norm == "Hello\n* * *\nWorld", norm
+    norm = normalize("Hello\n\n\n\n****\n---\nWorld\n\n")
+    assert norm == "Hello\n\n* * *\nWorld", norm
+    print('Done')
+
+def test_thematic_break():
+    assert reThematicBreak.search(f"hi\n___") != None
 
 test_normalize()
 
