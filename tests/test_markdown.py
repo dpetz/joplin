@@ -1,11 +1,10 @@
 import commonmark
-import pprint
-import json
 import logging
 
 from itertools import chain
-
+from zettel.util import pretty
 from context import zettel
+from zettel import markdown
 
 markdown_example = """
 # My Title
@@ -14,28 +13,22 @@ Backlinks
 - [Backlink 1](:/4083d03c95e042fb8da9176f9bb2a051)
 """
 
-parser = commonmark.Parser()
-ast = parser.parse(markdown_example)
-pp = pprint.PrettyPrinter(indent=4, width=40, compact=False, sort_dicts=False)
-
-
 def inspect_ast():
     #commonmark.dumpAST(ast)
     # see js doc: https://developer.aliyun.com/mirror/npm/package/commonmark
+    ast = parser.parse(markdown_example)
     for n in ast.walker():
         if n[1]: # entering
             n[0].pretty()
             print("\n\n")
 
-def html(md):
-    return commonmark.HtmlRenderer().render(parser.parse(md))
     
 def deflist():
     md = "Term 1\n:   Def 1"
-    print(html(md))
+    print(markdown.html(md))
 
 
-def test_markdown_to_html():
+def test_html():
     result = html(markdown_example)
     print (result)
     assert result == \
@@ -57,11 +50,12 @@ def collect_values(json,key):
         else:
             return json.get(key, None)
     return None
-    
+
+
 
 def test_types_in_json():
     json_dict = json.loads(commonmark.dumpJSON(ast))
-    logging.info(pp.pprint(json_dict))
+    logging.info(pretty(json_dict))
     tmp = list(collect_values(json_dict,'type'))
     assert tmp  == [ \
         {'document': [['heading', 'text']]}, \

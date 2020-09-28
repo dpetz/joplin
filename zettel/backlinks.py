@@ -5,6 +5,7 @@ from httpx import Response
 import logging
 import re
 import difflib
+import server
 
 # INPUT PARAMETERS
 TAG = 'test' # 'backlinks'
@@ -15,22 +16,20 @@ logging.basicConfig()
 logging.getLogger().setLevel(logging.INFO)
 
 
-async def add_backlinks_note(note, update_server=True):
+async def add_backlinks(note):
     """Finds and appends backlinks to note and update at server. Returns Edit """
 
-    note = await note_data(note)
-    nid = note.pop('id')
-    body = note.pop('body')
-    edit = md.Edit(body)
-    logging.info(f"Adding backlinks: {nid}")
+    logging.info(f"Adding backlinks: {note['id']}")
 
     # Find in-links from all other notes. Keep those not already contained
-    linking_notes = (await api().search(nid)).json()
+    linking_notes = (await api().search(note['id'])).json()
     links = [md.NoteLink(n['id'],n['title']) for n in linking_notes \
-        if (n['id'] != nid) and (n['id'] not in body)]
+        if (n['id'] != note['id']) and (n['id'] not in body)]
     
     if not links:
         return None
+
+    body = note['body']
 
     # remove old backlinks (if any)
     match = _pattern.search(body)
@@ -44,34 +43,36 @@ async def add_backlinks_note(note, update_server=True):
         body = body[:start]
 
     # append backlinks
-    body += f"\n* * *\n:link:{', '.join([l.markdown() for l in links])}"
+    insights.add(':links:', '.'.join([l.markdown() for l in links]), body)
 
     body = md.normalize(body)
 
-    # upload changed body and confirm all other fields
-    if update_server:
-
-        # make sure to pass all fields again or they are erased by server
-        # requires to fetch tags from server which are not returned by `get_note`
-        title = note.pop('title')
-        pid = note.pop('parent_id')
-        tags = (await api().get_notes_tags(nid)).json()
-        note['tags'] = ', '.join([t['title'] for t in tags])
-
-        await api().update_note(nid, title, body, pid, **note)
-
-    edit.revision = body
-
-    return edit
+    return {'body' : body}
 
 
-async def add_backlinks_tag():
-    """ Adds backlinks to all notes tagged TAG and updates server """
-    notes = await notes_tagged(TAG)
-    edits = [await add_backlinks_note(note=n, update_server=True) for n in notes]
-    edits = list(filter(None, edits))
-    print(f"Edits: {len(edits)}")
+
+
+        
+async def edit_notes(editor,filter):
+    """ Applies function to every note and uploads changes.
+    :param editor: function accepting a note data dict and returning those items that changed
+    :param tag: notes with a tag of this title will be processed
+    """
+    notes = await fetch_notes(filter)
+    edits = [await editor(n) for n in notes]
+
+    differ = difflib.Differ()
+    for edit, note in zip(notes, edits):
+
+        # log diff
+        for k,v in edit.items():
+            logging.info(f"Updating '{k}' for note {note['id']}.")
+            logging.info(differ.compare(note[k], edit[k])
+        
+        # update server
+        # server.update_note(note.update(edit))
 
 
 if __name__ == "__main__":
-    asyncio.run(add_backlinks_tag())
+    tag = Filter(tag=["test"])
+    asyncio.run(edit_notes(add_backlinks, tag)

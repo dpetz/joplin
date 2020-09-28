@@ -1,9 +1,8 @@
 from dataclasses import dataclass
 import commonmark
 import json
-import asyncio
-from joplin_api import JoplinApi
-from httpx import Response
+
+import pprint
 
 
 @dataclass
@@ -11,53 +10,9 @@ class Link:
     url:str
     text:str
 
-async def new_folder(name):
-    """Returns folder's id to be used as 'parent_id' for notes"""
-    res = await joplin.create_folder(folder=name)
-    return res.json()['id']
-    
-async def new_note(title, body, folder_id, tags=[]):
-
-    assert title is str
-    assert body is str
-    assert folder_id is str
-    assert tags is list
-
-    kwargs = {}
-
-    if tags:
-        kwargs['tags'] = ', '.join(tags)
-
-    await joplin.create_note(title="MY NOTE", body=body, parent_id=parent_id, **kwargs)
-
-_joplin = None
-
-def api():
-    global _joplin
-    if not _joplin:
-        with open('.token') as f:
-            _joplin = JoplinApi(f.readline())
-    return _joplin
-
-
-async def tag_titled(tag_title):
-    tags = await api().get_tags()
-    for t in tags.json():
-         if t['title'] == tag_title:
-             return t['id']
-    raise Exception(f"No such tag: {tag_title}")
-
-
-async def note_data(note):
-    if isinstance(note, str):
-         note = await api().get_note(note)
-    if isinstance(note, Response):
-        note = note.json()
-    assert 'id' in note
-    return note
-
-async def notes_tagged(tag_title):
-    return (await api().get_tags_notes(await tag_titled(tag_title))).json()
+def pretty(json):
+    pp = pprint.PrettyPrinter(indent=4, width=40, compact=False, sort_dicts=False)
+    return pp.pprint(json)
 
 
 def markup_to_json(s):

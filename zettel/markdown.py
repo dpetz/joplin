@@ -1,4 +1,9 @@
 from dataclasses import dataclass
+import commonmark
+
+def html(md):
+    parser = commonmark.Parser()
+    return commonmark.HtmlRenderer().render(parser.parse(md))
 
 @dataclass
 class NoteLink:

@@ -6,7 +6,7 @@ The marker's are typically emojis such as `":robot:"`
 
 def add(insight_marker, insight_content, note_body):
     """Add insight to note body markdown"""
-    pass
+    note_body += f"\n* * *\n:link:{', '.join([l.markdown() for l in links])}"
 
 def read(note_body):
     """Extracts all note insights as dict from markers to content."""
