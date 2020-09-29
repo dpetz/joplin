@@ -2,8 +2,6 @@ import json
 import asyncio
 from joplin_api import JoplinApi
 from httpx import Response
-from util import Filter
-
 import pprint
 
 
@@ -36,32 +34,15 @@ def api():
     return _joplin
 
 
-async def tag_titled(tag_title):
-    tags = await api().get_tags()
-    for t in tags.json():
-         if t['title'] == tag_title:
-             return t['id']
-    raise Exception(f"No such tag: {tag_title}")
+async def tag_id(title):
+    "Fetches tags's Id given its title. "
+    return (await api().search(title, item_type='tag')).json()[0]['id']
 
 
-async def note_data(note):
-    if isinstance(note, str):
-         note = await api().get_note(note)
-    if isinstance(note, Response):
-        note = note.json()
-    assert 'id' in note
-    return note
+async def notes_by_tag(title):
+    "Lists all note (as dics) for a given tags"
+    return (await api().get_tags_notes(await tag_id(title))).json()
 
-async def fetch_notes(filter_values filter_type):
-    """ Convenience method to get notes by tag, notebook or query. Returns list
-    of note data dicts.
-    :param filter_type: 't' for tag, 'n' for notebook or 'q' for 
-    """
-    assert filter.notebooks == [], 'Notebook filter not implemented'
-    assert filter.query == '', 'Query filter not implemented'
-    assert len(filter.tags) == 1, 'Expect single tag. (multiple tags filter not implemented) '
-
-    return (await api().get_tags_notes(await tag_titled(ilter.tags[0]))).json()
 
 async def update_note(note,tags=None):
     """ Uploads note to serve.

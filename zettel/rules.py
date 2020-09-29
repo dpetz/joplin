@@ -2,6 +2,7 @@ from __future__ import absolute_import, unicode_literals
 from dataclasses import dataclass
 import re
 import logging
+import markdown
 
 
 @dataclass
@@ -10,14 +11,11 @@ class Rule:
     pattern:re.Pattern
     substitution:str
     
-# https://github.com/readthedocs/commonmark.py/blob/master/commonmark/blocks.py
-reThematicBreak = re.compile(
-    r'^(?:(?:\*[ \t]*){3,}|(?:_[ \t]*){3,}|(?:-[ \t]*){3,})[ \t]*$',re.MULTILINE)
 
 rules = [
-    Rule('Trailing Line Break', re.compile(r'\n\Z'), ''),
+    Rule('Trailing Line Break', re.compile(r'\n\Z',re.MULTILINE), ''),
     Rule('Repeated Empty Lines', re.compile(r'\n{3,}'), '\n\n'),
-    Rule('Thematic Break * * *', reThematicBreak, '* * *'),
+    Rule('Thematic Break * * *', markdown.reThematicBreak, '* * *'),
     Rule('Repated Thematic Break', re.compile(r'\* \* \*\n+\* \* \*'), '* * *')
     ]
 

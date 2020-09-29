@@ -1,4 +1,3 @@
-from util import api, notes_tagged, note_data
 import markdown as md
 import asyncio
 from httpx import Response
@@ -6,9 +5,8 @@ import logging
 import re
 import difflib
 import server
+import insights
 
-# INPUT PARAMETERS
-TAG = 'test' # 'backlinks'
 
 # OTHER GLOBAL VARS
 _pattern = re.compile('\n\^:link:\^.*') # . matches until newline
@@ -21,15 +19,15 @@ async def add_backlinks(note):
 
     logging.info(f"Adding backlinks: {note['id']}")
 
+    body = note['body']
+
     # Find in-links from all other notes. Keep those not already contained
-    linking_notes = (await api().search(note['id'])).json()
+    linking_notes = (await server.api().search(note['id'])).json()
     links = [md.NoteLink(n['id'],n['title']) for n in linking_notes \
         if (n['id'] != note['id']) and (n['id'] not in body)]
     
     if not links:
         return None
-
-    body = note['body']
 
     # remove old backlinks (if any)
     match = _pattern.search(body)
@@ -43,36 +41,33 @@ async def add_backlinks(note):
         body = body[:start]
 
     # append backlinks
-    insights.add(':links:', '.'.join([l.markdown() for l in links]), body)
+    body = insights.add(':links:', '.'.join([l.markdown() for l in links]), body)
 
     body = md.normalize(body)
 
     return {'body' : body}
 
-
-
-
         
-async def edit_notes(editor,filter):
+async def edit_notes(editor,tag_title):
     """ Applies function to every note and uploads changes.
     :param editor: function accepting a note data dict and returning those items that changed
     :param tag: notes with a tag of this title will be processed
     """
-    notes = await fetch_notes(filter)
-    edits = [await editor(n) for n in notes]
+    notes = await server.notes_by_tag(tag_title)
+    edits = [(await editor(n)) for n in notes]
 
     differ = difflib.Differ()
-    for edit, note in zip(notes, edits):
-
-        # log diff
-        for k,v in edit.items():
-            logging.info(f"Updating '{k}' for note {note['id']}.")
-            logging.info(differ.compare(note[k], edit[k])
-        
-        # update server
-        # server.update_note(note.update(edit))
+    for edit, note in zip(edits, notes):
+        if edit:
+            # log diff
+            for k,v in edit.items():
+                logging.info(f"Updating '{k}' for note {note['id']}.")
+                diff = differ.compare(note[k], edit[k]) 
+                logging.info([d for d in diff]) #if not d.startsWith(' ')
+            
+            # update server
+            # server.update_note(note.update(edit))
 
 
 if __name__ == "__main__":
-    tag = Filter(tag=["test"])
-    asyncio.run(edit_notes(add_backlinks, tag)
+    asyncio.run(edit_notes(add_backlinks, "test"))

@@ -1,5 +1,12 @@
 from dataclasses import dataclass
 import commonmark
+import re
+
+# https://github.com/readthedocs/commonmark.py/blob/master/commonmark/blocks.py
+reThematicBreak = re.compile(
+    r'^(?:(?:\*[ \t]*){3,}|(?:_[ \t]*){3,}|(?:-[ \t]*){3,})[ \t]*$',re.MULTILINE)
+
+thematicBreak = "* * *"
 
 def html(md):
     parser = commonmark.Parser()
