@@ -3,10 +3,9 @@ from zettel import rules
 from zettel import markdown
 
 
-def test_normalize():
-    norm = rules.normalize("Hello\n\n\n\n****\n---\nWorld\n\n")
+async def test_normalize():
+    norm = await rules.normalize("Hello\n\n\n\n****\n---\nWorld\n\n")
     assert norm == "Hello\n\n* * *\nWorld", norm
-    print('Done')
 
 
 def test_thematic_break():

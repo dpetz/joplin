@@ -31,3 +31,9 @@ def test_add():
     doc = insights.add(':panda_face:','Crowd','Zoo')
     ins = insights.read(doc)
     assert len(ins) == 1, doc
+
+
+def test_drop_last():
+    doc = """Hello\n___\n:smile:World"""
+    drop = insights.drop(':smile:', doc)
+    assert drop == "Hello", drop

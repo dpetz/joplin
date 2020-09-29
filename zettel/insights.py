@@ -20,7 +20,7 @@ _closing =  r"\Z"
 
 reInsight = re.compile(f"^({_marker})(.*)$", re.M)
 
-reInsights = re.compile(f"{_opening}\n+((?:^{_marker}.*\n*)+){_closing }", re.M)
+reInsights = re.compile(f"{_opening}\n+((?:^{_marker}.*\n*)+){_closing}", re.M)
 
 @dataclass
 class Insight:
@@ -65,7 +65,8 @@ def drop(marker, doc):
     for ins in insights:
         if ins.marker == marker:
             doc = doc[:ins.start] + doc[ins.end:]
-    return doc
+    m = re.search(_opening,doc) 
+    return re.sub(_opening + r'\n*' + _closing, "",doc)
 
 
     

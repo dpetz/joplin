@@ -3,6 +3,8 @@ import asyncio
 from joplin_api import JoplinApi
 from httpx import Response
 import pprint
+import difflib
+import logging
 
 
 async def new_folder(name):
@@ -57,13 +59,45 @@ async def update_note(note,tags=None):
 
     """
 
+    assert isinstance(note, dict), note
+
+    id = note.pop('id')
+    title = note.pop('title')
+    body  = note.pop('body')
+    pid = note.pop('parent_id')
+
     # fetch tags from server. There are note returned b which are not returned by `get_note`
     if tags:
         note['tags'] = ', '.join(tags)
     else:
-        tags = (await api().get_notes_tags(nid)).json()
+        tags = (await api().get_notes_tags(id)).json()
         note['tags'] = ', '.join([t['title'] for t in tags])
+
+    
         
     # see https://github.com/foxmask/joplin-api/blob/master/joplin_api/core.py
-    res = await api().update_note(note['id'], note['title'], note['body'], note['parent_id'], **note)
+    res = await api().update_note(id,title, body, pid, **note)
     assert res.status_code == 200, res
+
+async def edit_notes(editor,tag_title):
+    """ Applies function to every note and uploads changes.
+    :param editor: function accepting a note data dict and returning those items that changed
+    :param tag: notes with a tag of this title will be processed
+    """
+    notes = await notes_by_tag(tag_title)
+    edits = [(await editor(n)) for n in notes]
+
+    differ = difflib.Differ()
+    for edit, note in zip(edits, notes):
+        if edit:
+            # log diff
+            for k,v in edit.items():
+                logging.info(f"Updating '{k}' for note {note['id']}.")
+                diff = differ.compare(note[k].splitlines(), edit[k].splitlines())
+                for d in diff: 
+                    if not d.startswith(' '):
+                        logging.info(d)
+            
+            # update server
+            note.update(edit)
+            await update_note(note)
