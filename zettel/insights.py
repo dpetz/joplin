@@ -7,44 +7,66 @@ import re
 import markdown
 import logging
 
+from dataclasses import dataclass
+
 # each line is empty or an insight starting with a marker 
-_marker = "^:[a-z]{3,}:"
+_marker = "^:[a-z_]{3,}:"
 
 # insights block starts with a thematic break
 _opening = markdown.reThematicBreak.pattern
 
 # insights block closes with end of string or thematic break
-_closing =  "\Z" 
+_closing =  r"\Z" 
 
-_insight = f"^({_marker})(.*)$"
+reInsight = re.compile(f"^({_marker})(.*)$", re.M)
 
-_insights = f"{_opening}\n+((?:^{_marker}.*\n*)+){_closing }"
+reInsights = re.compile(f"{_opening}\n+((?:^{_marker}.*\n*)+){_closing }", re.M)
 
-def add(insight_marker, insight_content, note_body):
+@dataclass
+class Insight:
+    marker:str
+    content:str
+    start:int
+    end:int
+
+def add(marker, content, doc):
     """Add insight to note body markdown"""
-    assert re.match(marker + '$', insight_marker), insight_marker
-    note_body += f"\n{_opening}\n{insight_marker}{insight_content}"
-
+    assert re.fullmatch(_marker, marker), marker
+    edit = f"\n{marker}{content}"
+    if not read(doc):
+        doc += "\n* * *"
+    return doc + edit
+    
 def read(markdown_string):
-    """Extracts all note insights as dict from markers to content,
-    with same order as in the markup. None if no insights found. """
-    block = re.search(_insights, markdown_string, re.M)
+    """Lists insights found in note """
+    block = reInsights.search(markdown_string)
+    insights = []
     if block:
-        insights = {}
-        for line in block.group(1).split("\n"):
-            if line:
-                m = re.match(_insight,line)
-                insights[m.group(1)] = m.group(2).strip()
+        offset = block.start(0)
 
-        return insights
+        while True:
+            match = reInsight.search(markdown_string, offset)
+            if not match:
+                break
+            insights += [Insight(match.group(1), match.group(2).strip(), match.start(0), match.end(0))]
+            offset = match.end(0) + 1
 
-def remove(markdown_string):
-    """Remove all insights. Returns new modified string or None of no insights found."""
-    m = re.search(_insights, markdown_string, re.M)
-    if m:
-        return markdown_string[:m.start(0)] + markdown_string[m.end(0):]
+    return insights
 
-def drop(insight_marker, note_body):
+def clear(doc):
+    """Remove all insights. """
+    match = reInsights.search(doc)
+    return doc[:match.start(0)] if match else doc
+
+def drop(marker, doc):
     """"Remove insights for given marker."""
-    raise Exception("Not Implemented")
+    insights = read(doc)
+    insights.reverse()
+    for ins in insights:
+        if ins.marker == marker:
+            doc = doc[:ins.start] + doc[ins.end:]
+    return doc
+
+
+    
 

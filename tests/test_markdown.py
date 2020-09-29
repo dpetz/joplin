@@ -28,7 +28,7 @@ def deflist():
     print(markdown.html(md))
 
 
-def test_html():
+def _test_html():
     result = html(markdown_example)
     print (result)
     assert result == \
@@ -53,7 +53,7 @@ def collect_values(json,key):
 
 
 
-def test_types_in_json():
+def _test_types_in_json():
     json_dict = json.loads(commonmark.dumpJSON(ast))
     logging.info(pretty(json_dict))
     tmp = list(collect_values(json_dict,'type'))

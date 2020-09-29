@@ -30,8 +30,7 @@ returned_fields_search_folder = set(common_fields + [
      'created_time',
     'is_shared'])
  
-
-
+ 
 async def test_tag_search():
     keys = set((await server.api().search('test', item_type='tag')).json()[0].keys())
     assert returned_fields_search_tag == keys, keys

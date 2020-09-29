@@ -1,5 +1,6 @@
 from context import zettel
 from zettel import rules
+from zettel import markdown
 
 
 def test_normalize():
@@ -9,4 +10,4 @@ def test_normalize():
 
 
 def test_thematic_break():
-    assert rules.reThematicBreak.search(f"hi\n___") != None
+    assert markdown.reThematicBreak.search(f"hi\n___") != None

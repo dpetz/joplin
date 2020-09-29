@@ -2,7 +2,8 @@ from context import zettel
 import insights
 import re
 
-markdown_01 = """
+
+doc_1 = """
 Some Text
 ___
 :link:<www.wikipedia.org>
@@ -10,14 +11,23 @@ ___
 
 """
 
-def test_remove():
-    md = insights.remove(markdown_01)
-    assert re.match("\n*Some Text\n*",md), md
+def test_clear():
+    md = insights.clear(doc_1)
+    assert "\nSome Text\n" == md, md
 
 def test_read():
-    
-    assert insights.read(markdown_01) == \
-        {':link:': '<www.wikipedia.org>', ':robot:': '`2020`'}
+    ins = insights.read(doc_1)
+    assert len(ins) == 2, ins
+    assert ins[0].marker == ':link:' and ins[0].content == '<www.wikipedia.org>', ins[0]
+    assert ins[1].marker == ':robot:' and ins[1].content == '`2020`', ins[1]
 
+def test_drop():
+    doc = insights.drop(':link:', doc_1)
+    ins = insights.read(doc)
+    assert len(ins) == 1, ins
+    assert ins[0].marker == ':robot:' and ins[0].content == '`2020`', ins[0]
 
-test_remove() 
+def test_add():
+    doc = insights.add(':panda_face:','Crowd','Zoo')
+    ins = insights.read(doc)
+    assert len(ins) == 1, doc
