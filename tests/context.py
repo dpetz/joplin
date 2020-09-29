@@ -11,7 +11,9 @@ PROJECT_DIRS = [
 sys.path[:0] = PROJECT_DIRS
 
 import zettel
+import logging
 
+logging.getLogger().setLevel(logging.DEBUG)
 
 TEST_NOTEBOOK = "Test"
 

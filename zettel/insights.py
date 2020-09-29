@@ -3,28 +3,22 @@ This module reads and writes insights to note markdown in a consistent and conve
 Each insights consists of a _marker_ and _content_.
 The marker's are typically emojis such as `":robot:"` 
 """
-
 import re
 import markdown
+import logging
 
 # each line is empty or an insight starting with a marker 
 _marker = "^:[a-z]{3,}:"
-
-_content = ".*"
 
 # insights block starts with a thematic break
 _opening = markdown.reThematicBreak.pattern
 
 # insights block closes with end of string or thematic break
-_closing =  "\Z"  # r"[(?:" + _opening + r")\Z]"
+_closing =  "\Z" 
 
-_insight = f"^(?P<marker>{_marker})(?P<content>{_content})$"
+_insight = f"^({_marker})(.*)$"
 
-# 
-_insights = f"(?:{_insight}\n+)+"
-
-_block = f"{_opening}\n+(?P<insights>{_insights})" #\n+{_closing}
-
+_insights = f"{_opening}\n+((?:^{_marker}.*\n*)+){_closing }"
 
 def add(insight_marker, insight_content, note_body):
     """Add insight to note body markdown"""
@@ -33,28 +27,24 @@ def add(insight_marker, insight_content, note_body):
 
 def read(markdown_string):
     """Extracts all note insights as dict from markers to content,
-    with same order as in the markup."""
-    m = re.search(_block, markdown_string, re.M)
-    print(f"INSIGHTS:\n{m.group('insights')}\n---------------")
-    return re.findall(_insights + '?', m.group('insights'), re.M)
+    with same order as in the markup. None if no insights found. """
+    block = re.search(_insights, markdown_string, re.M)
+    if block:
+        insights = {}
+        for line in block.group(1).split("\n"):
+            if line:
+                m = re.match(_insight,line)
+                insights[m.group(1)] = m.group(2).strip()
+
+        return insights
+
+def remove(markdown_string):
+    """Remove all insights. Returns new modified string or None of no insights found."""
+    m = re.search(_insights, markdown_string, re.M)
+    if m:
+        return markdown_string[:m.start(0)] + markdown_string[m.end(0):]
 
 def drop(insight_marker, note_body):
-    """"Remove insight for given marker."""
-    pass
-
-
-def test_read():
-    body = """
-Some Text
-___
-:link:<www.wikipedia.org>
-:robot:`2020`
-"""
-    matches = read(body)
-    print(matches)
-    #for m in matches:
-    #    print(m)
-
-test_read()
-
+    """"Remove insights for given marker."""
+    raise Exception("Not Implemented")
 
