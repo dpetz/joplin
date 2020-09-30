@@ -15,7 +15,7 @@ _marker = "^:[a-z_]{3,}:"
 # insights block starts with a thematic break
 _opening = markdown.reThematicBreak.pattern
 
-# insights block closes with end of string or thematic break
+# insights block closes with end of doc
 _closing =  r"\Z" 
 
 reInsight = re.compile(f"^({_marker})(.*)$", re.M)
@@ -66,8 +66,4 @@ def drop(marker, doc):
         if ins.marker == marker:
             doc = doc[:ins.start] + doc[ins.end:]
     m = re.search(_opening,doc) 
-    return re.sub(_opening + r'\n*' + _closing, "",doc)
-
-
-    
-
+    return re.sub(r'\s*' + _opening + r'\s*' + _closing, "",doc, flags=re.M)

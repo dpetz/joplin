@@ -41,5 +41,6 @@ async def normalize(note):
 
 
 if __name__ == "__main__":
-    asyncio.run(server.edit_notes(normalize, "china"))
-    print('Done')
+    logging.basicConfig()
+    logging.getLogger().setLevel(logging.INFO)
+    asyncio.run(server.edit_notes(normalize, "nobacklinks"))
