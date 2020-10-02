@@ -79,7 +79,7 @@ async def update_note(note,tags=None):
     res = await api().update_note(id,title, body, pid, **note)
     assert res.status_code == 200, res
 
-async def edit_notes(editor,tag_title):
+async def edit_notes(editor,tag_title, logger):
     """ Applies function to every note and uploads changes.
     :param editor: function accepting a note data dict and returning those items that changed
     :param tag: notes with a tag of this title will be processed
@@ -92,11 +92,11 @@ async def edit_notes(editor,tag_title):
         if edit:
             # log diff
             for k,v in edit.items():
-                logging.info(f"Updating '{k}' for note {note['id']}.")
+                logger.info(f"Updating '{k}' for note {note['id']}.")
                 diff = differ.compare(note[k].splitlines(), edit[k].splitlines())
                 for d in diff: 
                     if not d.startswith(' '):
-                        logging.info(d)
+                        logger.info(d)
             
             # update server
             note.update(edit)

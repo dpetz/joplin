@@ -1,7 +1,9 @@
 """ _Insights_ refer to note wide data created by this library and embedded within notes.
 This module reads and writes insights to note markdown in a consistent and convenient way.
 Each insights consists of a _marker_ and _content_.
-The marker's are typically emojis such as `":robot:"` 
+In its current implementation markers are emjois and
+insights are put at the end of a note prefixed by thematic breaks
+
 """
 import re
 import markdown
@@ -10,7 +12,8 @@ import logging
 from dataclasses import dataclass
 
 # each line is empty or an insight starting with a marker 
-_marker = "^:[a-z_]{3,}:"
+
+_marker =  '^' + markdown.emoji
 
 # insights block starts with a thematic break
 _opening = markdown.reThematicBreak.pattern

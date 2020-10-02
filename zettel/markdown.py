@@ -8,6 +8,11 @@ reThematicBreak = re.compile(
 
 thematicBreak = "* * *"
 
+emoji = ":[a-z_]{3,}:"
+
+code = "`.*?`"
+
+
 def html(md):
     parser = commonmark.Parser()
     return commonmark.HtmlRenderer().render(parser.parse(md))
@@ -19,14 +24,3 @@ class NoteLink:
 
     def markdown(self) -> str:
         return f"[{self.text}](:/{self.id})"
-
-@dataclass
-class Edit:
-    original:str
-    revision:str = None
-
-def lines_changed(edit):
-    pass
-
-def diff(edit):
-    pass
