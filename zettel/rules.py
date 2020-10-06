@@ -41,6 +41,4 @@ async def normalize(note):
 
 
 if __name__ == "__main__":
-    logging.basicConfig()
-    logging.getLogger().setLevel(logging.INFO)
     asyncio.run(server.edit_notes(normalize, "nobacklinks"))

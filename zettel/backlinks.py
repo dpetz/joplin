@@ -10,8 +10,6 @@ import rules
 
 # OTHER GLOBAL VARS
 _pattern = re.compile('\n:link:.*') # . matches until newline
-logging.basicConfig()
-logging.getLogger().setLevel(logging.INFO)
 
 
 async def add_backlinks(note):
