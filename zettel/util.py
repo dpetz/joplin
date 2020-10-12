@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 import commonmark
 import json
-
 import pprint
 
 

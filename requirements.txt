@@ -1,3 +1,0 @@
-joplin-api
-commonmark
-Pillow

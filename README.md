@@ -5,13 +5,12 @@ Python scripts to turn [Joplin](https://joplinapp.org/) into a [Zettelkasten](ht
 
 ## Installation
 
-```sh
-pip install -r requirements.txt
-```
+Create Python environment
 
-To run tests
-```
-pip install -r requirements-dev.txt
+```sh
+pip install conda
+conda create -f environment.yml
+conda activate zettel
 ```
 
 ## Usage
@@ -22,6 +21,11 @@ python replace_links.py
 python related.py 
 ```
 
+Or 
+```sh
+chmod +x zettel.py
+./zettel.py
+```
 
 ## Backlog
 
@@ -59,6 +63,10 @@ as explained [here](https://code.visualstudio.com/docs/python/environments)
 
 ***
 
+Make runnable via
+```sh
+chmod +x zettel.py
+```
 
 # Example
 

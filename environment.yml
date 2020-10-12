@@ -1,0 +1,9 @@
+name: zettel
+dependencies:
+  - python=3
+  - commonmark
+  - Pillow
+  - pytest
+  - pip
+  - pip:
+    - joplin-api

@@ -32,7 +32,7 @@ def find_command(doc):
 async def tag_report(tag):
      notes = await server.notes_by_tag(tag)
      for n in notes:
-        log.info(f"[{n['title']}](./{n['id']})")
+        log.info(f"[{n['title']}](:/{n['id']})")
 
 async def find_scripts():
     notes_wo_body = (await server.api().search('/":robot:"'))
