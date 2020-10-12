@@ -5,41 +5,49 @@ import logging
 import os
 from datetime import datetime
 import argparse # see https://docs.python.org/3/library/argparse.html#module-argparse
+import server
+import asyncio
+import re
+import markdown
+import scripts
 
 
-log_file = 'zettel.log'
+log_file = 'app.log'
+commands = ['scripts']
+    
 
-def init_log():
-    log = logging.getLogger('zettel')
-    log.setLevel(logging.DEBUG)
-    os.remove(log_file)
-    handler = logging.FileHandler(log_file)
-    formatter = logging.Formatter('%(levelname)s %(message)s') # %(asctime)s - %(name)s - 
-    handler.setFormatter(formatter) 
-    log.addHandler(handler)
+async def launch(args):
+    """
+        if cmd:
+            if cmd['robot'] == 'tag_report':
+                await tag_report(cmd['label'])
+                with open(log_file) as file:  
+                    note['body'] = note['body'] + '\n* * *\n' + file.read()
+                    await server.update_note(note)
+            else:
+                logging.warning(f"Unknown script: {cmd['robot']}")
+    """
 
-    log.info(f"Zettel App launched at {datetime.now()}.")
-
-    return log
-
-log = init_log()
-
-
-
-parser = argparse.ArgumentParser(description='Turn Joplin into a Zettelkasten')
-parser.add_argument('script', help='Name of script to run')
-parser.add_argument("-d", "--debug", help="Print debug messages", action="store_true")
-parser.add_argument("-l", "--label", help="Only process notes with this tag")
-
-args = parser.parse_args()
-
-logging.basicConfig(
-    level=logging.DEBUG if args.debug else logging.INFO,
-    format='%(levelname)s:%(message)s', 
-    handlers=[logging.FileHandler('app.log','w'), logging.StreamHandler()]
-    )
+    if args.command == 'scripts':
+        result = await scripts.find()
+        logging.info(result)
 
 
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Turns Joplin into a Zettelkasten')
+    parser.add_argument('command', help=f"Command to run",choices=commands)
+    parser.add_argument("-d", "--debug", help="Print debug messages", action="store_true")
+    parser.add_argument("-l", "--label", help="Only process notes with this tag")
 
-logging.info(args.script)
-logging.debug(args.label)
+    args = parser.parse_args()
+
+
+    logging.basicConfig(
+        level=logging.DEBUG if args.debug else logging.INFO,
+        format='%(levelname)s:%(message)s', 
+        handlers=[logging.FileHandler(log_file,'w'), logging.StreamHandler()]
+        )
+
+    logging.debug(f"Zettel App launched at {datetime.now()}.")
+
+    asyncio.run(launch(args))
