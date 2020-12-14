@@ -50,4 +50,4 @@ if __name__ == '__main__':
 
     logging.debug(f"Zettel App launched at {datetime.now()}.")
 
-    asyncio.run(launch(args))
+    # asyncio.run(launch(args))
