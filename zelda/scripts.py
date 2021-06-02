@@ -1,3 +1,9 @@
+""" Finds Zelda commands in notes.
+Currently these are a sequence of emojis representing commands
+each followed by markup code blocks.
+
+
+"""
 import server
 import asyncio
 import re

@@ -35,12 +35,11 @@ async def launch(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Turns Joplin into a Zettelkasten')
-    parser.add_argument('command', help=f"Command to run",choices=commands)
+    parser.add_argument('command', help=f"Command to run", choices=commands)
     parser.add_argument("-d", "--debug", help="Print debug messages", action="store_true")
     parser.add_argument("-l", "--label", help="Only process notes with this tag")
 
     args = parser.parse_args()
-
 
     logging.basicConfig(
         level=logging.DEBUG if args.debug else logging.INFO,
@@ -48,6 +47,6 @@ if __name__ == '__main__':
         handlers=[logging.FileHandler(log_file,'w'), logging.StreamHandler()]
         )
 
-    logging.debug(f"Zettel App launched at {datetime.now()}.")
+    logging.debug(f"Zelda App launched at {datetime.now()}.")
 
-    # asyncio.run(launch(args))
+    asyncio.run(launch(args))

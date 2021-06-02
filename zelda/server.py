@@ -80,7 +80,7 @@ async def update_note(note,tags=None):
     assert res.status_code == 200, res
 
 async def edit_notes(editor,tag_title, logger):
-    """ Applies function to every note and uploads changes.
+    """ Applies function to every note with given tag and uploads changes.
     :param editor: function accepting a note data dict and returning those items that changed
     :param tag: notes with a tag of this title will be processed
     """
