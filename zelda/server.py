@@ -24,11 +24,11 @@ async def new_note(title, body, folder_id, tags=[]):
     if tags:
         kwargs['tags'] = ', '.join(tags)
 
-    await joplin.create_note(title="MY NOTE", body=body, parent_id=parent_id, **kwargs)
+    await _api().create_note(title="MY NOTE", body=body, parent_id=parent_id, **kwargs)
 
 _joplin = None
 
-def api():
+def _api():
     global _joplin
     if not _joplin:
         with open('.token') as f:
@@ -38,12 +38,15 @@ def api():
 
 async def tag_id(title):
     "Fetches tags's Id given its title. "
-    return (await api().search(title, item_type='tag')).json()[0]['id']
+    res = (await _api().search(title, item_type='tag'))
+    j = json.load(res)
+    data = j['items'][0]
+    return data['id']
 
 
 async def notes_by_tag(title):
     "Lists all note (as dics) for a given tags"
-    return (await api().get_tags_notes(await tag_id(title))).json()
+    return (await _api().get_tags_notes(await tag_id(title))).json()['items']
 
 
 async def update_note(note,tags=None):

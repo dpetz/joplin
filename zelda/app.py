@@ -1,21 +1,15 @@
 #!/usr/bin/env python
 # see https://realpython.com/run-python-scripts/#using-the-script-filename
 
-import logging
-import os
+""" Entry point for application from 
+"""
+
+import logging, asyncio, sys
 from datetime import datetime
 import argparse # see https://docs.python.org/3/library/argparse.html#module-argparse
-import server
-import asyncio
-import re
-import markdown
-import scripts
+import server, markdown, scripts, backlinks
 
-
-log_file = 'app.log'
-commands = ['scripts']
     
-
 async def launch(args):
     """
         if cmd:
@@ -28,25 +22,32 @@ async def launch(args):
                 logging.warning(f"Unknown script: {cmd['robot']}")
     """
 
-    if args.command == 'scripts':
+    if args.cmd == 'scripts':
         result = await scripts.find()
         logging.info(result)
+    elif args.cmd == 'backlinks':
+        await server.edit_notes(backlinks.add_backlinks, args.tag, logging.getLogger())
+
+
+
+def config_log(debug, log_file = 'app.log'):
+    logging.basicConfig(
+        level=logging.DEBUG if debug else logging.INFO,
+        format='%(levelname)s:%(message)s', 
+        handlers=[logging.FileHandler(log_file,'w'), logging.StreamHandler()]
+        )
+    logging.debug(f"Zelda launching at {datetime.now()}.")
+
+def config_arg_parser():
+    return None
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Turns Joplin into a Zettelkasten')
-    parser.add_argument('command', help=f"Command to run", choices=commands)
+    parser.add_argument('cmd', help=f"The command Zelda will run", choices=['scripts', 'backlinks'])
     parser.add_argument("-d", "--debug", help="Print debug messages", action="store_true")
-    parser.add_argument("-l", "--label", help="Only process notes with this tag")
-
-    args = parser.parse_args()
-
-    logging.basicConfig(
-        level=logging.DEBUG if args.debug else logging.INFO,
-        format='%(levelname)s:%(message)s', 
-        handlers=[logging.FileHandler(log_file,'w'), logging.StreamHandler()]
-        )
-
-    logging.debug(f"Zelda App launched at {datetime.now()}.")
-
+    parser.add_argument("-t", "--tag", help="Only process notes with this tag")
+    args = parser.parse_args(sys.argv[1:])
+    config_log(args.debug)
+    #print(sys.path)
     asyncio.run(launch(args))

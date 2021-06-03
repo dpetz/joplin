@@ -1,12 +1,11 @@
-import markdown as md
+
 import asyncio
 from httpx import Response
 import logging
 import re
-import server
-import insights
-import rules
-
+import server, insights, rules
+#from zelda
+import markdown as md
 
 # OTHER GLOBAL VARS
 _pattern = re.compile('\n:link:.*') # . matches until newline
@@ -20,7 +19,7 @@ async def add_backlinks(note):
     body = note['body']
 
     # Find in-links from all other notes. Keep those not already contained
-    linking_notes = (await server.api().search(note['id'])).json()
+    linking_notes = (await server.api().search(note['id'])).json()['items']
     links = [md.NoteLink(n['id'],n['title']) for n in linking_notes \
         if (n['id'] != note['id']) and (n['id'] not in body)]
     
