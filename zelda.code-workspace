@@ -13,6 +13,6 @@
 			"PYTHONPATH" : "${workspaceFolder}:${env:PYTHONPATH}"
 		},
 		"python.analysis.logLevel": "Information",
-		"python.pythonPath": "/Users/dpetzoldt/opt/anaconda3/envs/zettel"
+		"python.pythonPath": "/Users/dpetzoldt/opt/anaconda3/envs/zelda"
 	}
 }

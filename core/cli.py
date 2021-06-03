@@ -44,8 +44,7 @@ def config_log(debug, log_file = 'app.log'):
 def config_arg_parser():
     return None
 
-
-if __name__ == '__main__':
+def run():
     parser = argparse.ArgumentParser(description='Turns Joplin into a Zettelkasten')
     parser.add_argument('cmd', help=f"The command Zelda will run", \
         choices=['scripts', 'backlinks', 'notes'])
@@ -58,3 +57,9 @@ if __name__ == '__main__':
     config_log(args.debug)
 
     asyncio.run(launch(args))
+
+
+if __name__ == '__main__':
+    # debug:
+    sys.argv = [sys.argv[0]] + 'notes -s data'.split()
+    run()
