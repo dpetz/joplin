@@ -29,6 +29,7 @@ chmod +x app.py
 
 ## Backlog
 
+- [Python joplin-api](https://gitlab.com/annyong/joplin-api/) outdated and no longer maintained. Dooes not support [pagination](https://joplinapp.org/api/references/rest_api/#pagination).
 - Report: Note w/ links to modified notes and diffs.
 - refactor inline links to link references
 - mark edits w/ emjois, eg. successful or failed rescaling

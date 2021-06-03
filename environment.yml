@@ -5,5 +5,3 @@ dependencies:
   - Pillow
   - pytest
   - pip
-  - pip:
-    - joplin-api
