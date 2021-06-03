@@ -1,7 +1,9 @@
-name: zettel
+name: zelda
 dependencies:
   - python=3
   - commonmark
   - Pillow
   - pytest
-  - pip
+  - httpx
+  #- pip:
+  #  git+git://github.com/dpetz/joplin-api.git

@@ -1,6 +1,6 @@
 # Zelda
 
-Python scripts to turn [Joplin](https://joplinapp.org/) into a [Zettelkasten](https://en.wikipedia.org/wiki/Zettelkasten)
+Turn [Joplin](https://joplinapp.org/) into a [Zettelkasten](https://en.wikipedia.org/wiki/Zettelkasten)
 
 
 ## Installation

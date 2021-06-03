@@ -1,5 +1,6 @@
 import json
 import asyncio
+import sys
 from joplin_api import JoplinApi
 from httpx import Response
 import pprint
@@ -7,9 +8,15 @@ import difflib
 import logging
 
 
+async def search(query):
+    res = await api().search(query,field_restrictions='title')
+    titles = [item['title'] for item in res.json()['items']]
+    return titles
+
+
 async def new_folder(name):
     """Returns folder's id to be used as 'parent_id' for notes"""
-    res = await joplin.create_folder(folder=name)
+    res = await api().create_folder(folder=name)
     return res.json()['id']
     
 async def new_note(title, body, folder_id, tags=[]):
@@ -24,11 +31,11 @@ async def new_note(title, body, folder_id, tags=[]):
     if tags:
         kwargs['tags'] = ', '.join(tags)
 
-    await _api().create_note(title="MY NOTE", body=body, parent_id=parent_id, **kwargs)
+    await api().create_note(title="MY NOTE", body=body, parent_id=parent_id, **kwargs)
 
 _joplin = None
 
-def _api():
+def api():
     global _joplin
     if not _joplin:
         with open('.token') as f:
@@ -38,7 +45,7 @@ def _api():
 
 async def tag_id(title):
     "Fetches tags's Id given its title. "
-    res = (await _api().search(title, item_type='tag'))
+    res = (await api().search(title, item_type='tag'))
     j = json.load(res)
     data = j['items'][0]
     return data['id']
@@ -46,7 +53,7 @@ async def tag_id(title):
 
 async def notes_by_tag(title):
     "Lists all note (as dics) for a given tags"
-    return (await _api().get_tags_notes(await tag_id(title))).json()['items']
+    return (await api().get_tags_notes(await tag_id(title))).json()['items']
 
 
 async def update_note(note,tags=None):
