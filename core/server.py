@@ -9,22 +9,19 @@ import logging
 
 with open('.token','r') as f:
     token = f.readline()
-
-joplin = JoplinApi(token) 
-
-
+joplin = JoplinApi(token)
 
 async def search(query):
     res = await joplin.search(query,field_restrictions='title')
+    logging.info(res)
     # await joplin.client.aclose()
     titles = [item['title'] for item in res.json()['items']]
-    
     return titles
 
 
 async def new_folder(name):
     """Returns folder's id to be used as 'parent_id' for notes"""
-    res = await api().create_folder(folder=name)
+    res = await joplin.create_folder(folder=name)
     return res.json()['id']
     
 async def new_note(title, body, folder_id, tags=[]):
@@ -39,7 +36,7 @@ async def new_note(title, body, folder_id, tags=[]):
     if tags:
         kwargs['tags'] = ', '.join(tags)
 
-    await api().create_note(title="MY NOTE", body=body, parent_id=parent_id, **kwargs)
+    await joplin.create_note(title="MY NOTE", body=body, parent_id=parent_id, **kwargs)
 
 
 
@@ -47,7 +44,7 @@ async def new_note(title, body, folder_id, tags=[]):
 
 async def tag_id(title):
     "Fetches tags's Id given its title. "
-    res = (await api().search(title, item_type='tag'))
+    res = (await joplin.search(title, item_type='tag'))
     j = json.load(res)
     data = j['items'][0]
     return data['id']
@@ -55,7 +52,7 @@ async def tag_id(title):
 
 async def notes_by_tag(title):
     "Lists all note (as dics) for a given tags"
-    return (await api().get_tags_notes(await tag_id(title))).json()['items']
+    return (await joplin.get_tags_notes(await tag_id(title))).json()['items']
 
 
 async def update_note(note,tags=None):
@@ -82,13 +79,13 @@ async def update_note(note,tags=None):
     if tags:
         note['tags'] = ', '.join(tags)
     else:
-        tags = (await api().get_notes_tags(id)).json()
+        tags = (await joplin.get_notes_tags(id)).json()
         note['tags'] = ', '.join([t['title'] for t in tags])
 
     
         
     # see https://github.com/foxmask/joplin-api/blob/master/joplin_api/core.py
-    res = await api().update_note(id,title, body, pid, **note)
+    res = await joplin.update_note(id,title, body, pid, **note)
     assert res.status_code == 200, res
 
 async def edit_notes(editor,tag_title, logger):
@@ -113,3 +110,5 @@ async def edit_notes(editor,tag_title, logger):
             # update server
             note.update(edit)
             await update_note(note)
+
+
