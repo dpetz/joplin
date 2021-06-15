@@ -13,6 +13,6 @@
 			"PYTHONPATH" : "${workspaceFolder}:${env:PYTHONPATH}"
 		},
 		"python.analysis.logLevel": "Information",
-		"python.pythonPath": "/Users/dpetzoldt/opt/anaconda3/envs/zelda"
+		"python.pythonPath": "/Users/dpetzoldt/miniconda3/envs/zelda/bin/python"
 	}
 }
